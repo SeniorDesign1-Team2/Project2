@@ -17,13 +17,17 @@ preview(cam);
 
 %% take picture of image before shapes
 closePreview(cam);
-data.orig = snapshot(cam);
+%data.orig = snapshot(cam);
+
+%% read in image before shapes
+data.orig = imread("Images/NoShapes.jpg");
 figure();
 imshow(data.orig)
 [height,width,depth] = size(data.orig);
 
 %% take picture of camera after shapes are included
-data.cur = snapshot(cam);
+%data.cur = snapshot(cam);
+data.cur = imread("Images/Basic Shapes.jpg");
 figure();
 imshow(data.cur)
 
@@ -70,6 +74,10 @@ figure();
 imshow(data.cur);
 hold on;
 
+%Ideal Color Combinations
+colorsNum = {[255,0,0], [0,255,0], [0,0,255], [255,255,0], [255,0,255], [0,255,255]};
+colorsName = ["Red", "Green", "Blue", "Yellow", "Magenta", "Cyan"];
+
 items = size(STATS);
 for i = 1:items
     ratio = STATS(i).Area / STATS(i).Perimeter;
@@ -83,9 +91,25 @@ for i = 1:items
         STATS(i).Shape = "Invalid";
         continue;
     end
+   
+    %Find RGB Values at each Centroid
+    STATS(i).Red = data.cur(round(STATS(i).Centroid(2)), round(STATS(i).Centroid(1)),1);
+    STATS(i).Green = data.cur(round(STATS(i).Centroid(2)), round(STATS(i).Centroid(1)),2);
+    STATS(i).Blue = data.cur(round(STATS(i).Centroid(2)), round(STATS(i).Centroid(1)),3);
+    
+    STATS(i).lowestEuclideanDistance = 1000000;
+    for j = 1:size(colorsName,2)
+        currDistance = round(sqrt((colorsNum{j}(1) - double(STATS(i).Red))^2 + (colorsNum{j}(2) - double(STATS(i).Green))^2 + (colorsNum{j}(3) - double(STATS(i).Blue))^2));
+        if currDistance < STATS(i).lowestEuclideanDistance
+            STATS(i).colorIndex = j;
+            STATS(i).lowestEuclideanDistance = currDistance;
+        end
+    end
 
-    plot(STATS(i).Centroid(1),STATS(i).Centroid(2),'kO','MarkerFaceColor','k', 'MarkerSize', 3);
-    text(STATS(i).Centroid(1) - 10,STATS(i).Centroid(2) + 10, STATS(i).Shape);
+    %Plot Centroid and Shape Label
+    plot(STATS(i).Centroid(1),STATS(i).Centroid(2),'kO','MarkerFaceColor', 'k', 'MarkerSize', 3);
+    text(STATS(i).Centroid(1) - 10,STATS(i).Centroid(2) + 25, STATS(i).Shape, 'Color', colorsName{STATS(i).colorIndex});
+
 end
 
 
