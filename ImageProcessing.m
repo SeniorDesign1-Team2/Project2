@@ -17,17 +17,17 @@ preview(cam);
 
 %% take picture of image before shapes
 closePreview(cam);
-%data.orig = snapshot(cam);
+data.orig = snapshot(cam);
 
 %% read in image before shapes
-data.orig = imread("Images/NoShapes.jpg");
+%data.orig = imread("Images/NoShapes.jpg");
 figure();
 imshow(data.orig)
 [height,width,depth] = size(data.orig);
 
 %% take picture of camera after shapes are included
-%data.cur = snapshot(cam);
-data.cur = imread("Images/Basic Shapes.jpg");
+data.cur = snapshot(cam);
+%data.cur = imread("Images/Basic Shapes.jpg");
 figure();
 imshow(data.cur)
 
@@ -80,12 +80,12 @@ colorsName = ["Red", "Green", "Blue", "Yellow", "Magenta", "Cyan"];
 
 items = size(STATS);
 for i = 1:items
-    ratio = STATS(i).Area / STATS(i).Perimeter;
-    if ratio >= 0.75 && ratio < 2.5
+    ratio = STATS(i).Perimeter / STATS(i).Area;
+    if ratio >= 0.5 && ratio < 0.9
         STATS(i).Shape = "Triangle";
-    elseif ratio < 5
+    elseif ratio < 0.5 && ratio >= 0.19
         STATS(i).Shape = "Square";
-    elseif ratio < 7.5
+    elseif ratio < 0.19
         STATS(i).Shape = "Circle";
     else
         STATS(i).Shape = "Invalid";
